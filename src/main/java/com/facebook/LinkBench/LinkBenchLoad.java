@@ -468,7 +468,7 @@ public class LinkBenchLoad implements Runnable {
         stats.addStats(LinkBenchOp.LOAD_LINK, timetaken/1000, false);
 
         latencyStats.recordLatency(loaderID,
-                      LinkBenchOp.LOAD_LINK, timetaken/1000);
+                      LinkBenchOp.LOAD_LINK, timetaken);
       }
 
     } catch (Throwable e){//Catch exception if any
@@ -496,7 +496,7 @@ public class LinkBenchLoad implements Runnable {
       stats.addStats(LinkBenchOp.LOAD_LINKS_BULK_NLINKS, nlinks, false);
 
       latencyStats.recordLatency(loaderID, LinkBenchOp.LOAD_LINKS_BULK,
-                                                             timetaken/1000);
+                                                             timetaken);
     } catch (Throwable e){//Catch exception if any
         long endtime2 = System.nanoTime();
         long timetaken2 = (endtime2 - timestart)/1000;
@@ -522,7 +522,7 @@ public class LinkBenchLoad implements Runnable {
       stats.addStats(LinkBenchOp.LOAD_COUNTS_BULK_NLINKS, ncounts, false);
 
       latencyStats.recordLatency(loaderID, LinkBenchOp.LOAD_COUNTS_BULK,
-                                                             timetaken/1000);
+                                                             timetaken);
     } catch (Throwable e){//Catch exception if any
         long endtime2 = System.nanoTime();
         long timetaken2 = (endtime2 - timestart)/1000;

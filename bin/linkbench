@@ -34,6 +34,7 @@
 
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
+linkbench_dir=`cd "$bin"; cd ..; pwd`
 
 # Export LINKBENCH_HOME so that LinkBench Java code can access env var
 export LINKBENCH_HOME=`dirname $bin`
@@ -58,7 +59,6 @@ if [ "$HEAPSIZE" != "" ]; then
   JAVA_HEAP_MAX="-Xmx""$HEAPSIZE""m"
   #echo $JAVA_HEAP_MAX
 fi
-
 # CLASSPATH initially contains $CONF_DIR
 CLASSPATH="${CONF_DIR}"
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
@@ -67,8 +67,9 @@ CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 IFS=
 
 # add latest jar to CLASSPATH
-CLASSPATH=${CLASSPATH}:target/FacebookLinkBench.jar:
+CLASSPATH=${CLASSPATH}:$linkbench_dir/target/FacebookLinkBench.jar;
 
+echo $CLASSPATH
 # restore ordinary behaviour
 unset IFS
 

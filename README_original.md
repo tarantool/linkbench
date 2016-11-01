@@ -1,3 +1,9 @@
+- - -
+
+**_This project is not actively maintained. Proceed at your own risk!_**
+
+- - -  
+
 LinkBench Overview
 ====================
 LinkBench is a database benchmark developed to evaluate database
@@ -145,22 +151,6 @@ Running it without arguments will show a brief help message:
      -l                              Execute loading stage of benchmark
      -r                              Execute request stage of benchmark
 
-Building LinkBench for PostgreSQL
----------------------------------
-To build LinkBench for PostgreSQL use profile 'pgsql'
-
-    cd linkbench
-    mvn clean package -P pgsql
-
-To skip all tests
-
-    mvn clean package -P pgsql -DskipTests
-
-If the build is successful, you should get a message like this at the end of the output:
-
-    BUILD SUCCESSFUL
-    Total time: 3 seconds
-
 Running a Benchmark with MySQL
 ==============================
 In this section we will document the process of setting
@@ -294,7 +284,7 @@ After loading you should revert the changes:
     set global innodb_flush_log_at_trx_commit = 1;
     set global sync_binlog = 1;
     alter table linktable add key `id1_type`
-      (`id1`,`link_type`,`visibility`,`time`,`version`,`data`);
+      (`id1`,`link_type`,`visibility`,`time`,`id2`,`version`,`data`);
 
 Request Phase
 -------------
@@ -481,123 +471,3 @@ has permissions to create and drop tables.
 
 **If you implement a plugin for a new database, please consider contributing
 it back to the main LinkBench distribution with a pull request.**
-
-
-Running a Benchmark with PostgreSQL
-===================================
-
-* USE PostgreSQL 9.5 : 
-  for the UPSERT (INSERT ... ON CONFLICT KEY),
-	you should use PostgreSQL 9.5!!
-
-Setting up database and tables for PostgreSQL.
-To do this, there's ddl file in the project.
-
-	pgsql-ddl.sql
-
-PostgreSQL Setup
------------------
-We need to create a new database and tables on the PostgreSQL server.
-We'll create a new database called `linkdb` and
-the needed tables to store graph nodes, links and link counts.
-
-	1) run initdb (initialize database and templates) in shell
-		$> initdb -D linkdb
-		$> createdb		# this command make a default database
-
-	2) Run the following commands in the postgreSQL console:
-
-		$> psql 
-
-		--CREATE DATABASE for linkbench 
-		DROP DATABASE IF EXISTS linkdb;
-		CREATE DATABASE linkdb ENCODING='latin1' ;
-
-		--drop user linkbench to create new one
-		DROP USER  IF EXISTS linkbench;
-
-		--	You may want to set up a special database user account for benchmarking:
-		CREATE USER linkbench password 'password';
-		-- Grant all privileges on linkdb to this user
-		GRANT ALL ON database linkdb TO linkbench;
-
-	3) Connect to linkdb and create tables and index
-		
-		$> #conn postgresql linkbench/password
-    $> psql -Ulinkbench linkdb
-
-		--add Schema keep the same query style (dbid.table_name)
-		DROP SCHEMA IF EXISTS linkdb CASCADE; 
-		CREATE SCHEMA linkdb;
-
-		--FIXME:Need to make it partitioned by key id1 %16
-		CREATE TABLE linkdb.linktable (
-				id1 numeric(20) NOT NULL DEFAULT '0',
-				id2 numeric(20) NOT NULL DEFAULT '0',
-				link_type numeric(20) NOT NULL DEFAULT '0',
-				visibility smallint NOT NULL DEFAULT '0',
-				data varchar(255) NOT NULL DEFAULT '',
-				time numeric(20) NOT NULL DEFAULT '0',
-				version bigint NOT NULL DEFAULT '0',
-				PRIMARY KEY (link_type, id1,id2)
-				);
-
-		-- this is index for linktable
-		CREATE INDEX id1_type on linkdb.linktable(
-				id1,link_type,visibility,time,id2,version,data);
-
-		CREATE TABLE linkdb.counttable (
-				id numeric(20) NOT NULL DEFAULT '0',
-				link_type numeric(20) NOT NULL DEFAULT '0',
-				count int NOT NULL DEFAULT '0',
-				time numeric(20) NOT NULL DEFAULT '0',
-				version numeric(20) NOT NULL DEFAULT '0',
-				PRIMARY KEY (id,link_type)
-				);
-
-		CREATE TABLE linkdb.nodetable (
-				id BIGSERIAL NOT NULL,
-				type int NOT NULL,
-				version numeric NOT NULL,
-				time int NOT NULL,
-				data text NOT NULL,
-				PRIMARY KEY(id)
-				);
-
-Loading Data
-------------
-First we need to do an initial load of data using our new config file:
-
-    ./bin/linkbench -c config/LinkConfigPgsql.properties -l
-
-This will take a while to load, and you should get frequent progress updates.
-Once loading is finished you should see a notification like:
-
-    LOAD PHASE COMPLETED.  Loaded 10000000 nodes (Expected 10000000).
-      Loaded 47423071 links (4.74 links per node).  Took 620.4 seconds.
-      Links/second = 76435
-
-At the end LinkBench reports a range of statistics on load time that are
-of limited interest at this stage.
-
-Request Phase
--------------
-Now you can do some benchmarking.
-Run the request phase using the below command:
-
-    ./bin/linkbench -c config/LinkConfigPgsql.properties -r
-
-LinkBench will log progress to the console, along with statistics.
-Once all requests have been sent, or the time limit has elapsed, LinkBench
-will notify you of completion:
-
-    REQUEST PHASE COMPLETED. 25000000 requests done in 2266 seconds.
-      Requests/second = 11029
-
-You can also inspect the latency statistics. For example, the following line tells us the mean latency
-for link range scan operations, along with latency ranges for median (p50), 99th percentile (p99) and
-so on.
-
-    GET_LINKS_LIST count = 12678653  p25 = [0.7,0.8]ms  p50 = [1,2]ms
-                   p75 = [1,2]ms  p95 = [10,11]ms  p99 = [15,16]ms
-                   max = 2064.476ms  mean = 2.427ms

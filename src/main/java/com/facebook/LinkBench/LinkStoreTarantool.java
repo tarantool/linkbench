@@ -10,7 +10,10 @@ import org.tarantool.TarantoolClientOps;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 public class LinkStoreTarantool extends GraphStore {
 
@@ -39,7 +42,7 @@ public class LinkStoreTarantool extends GraphStore {
     private static final String METHOD_MULTI_GET_LINK = "multi_get_link";
     private static final String METHOD_DELETE_LINK = "delete_link";
     private static final String METHOD_GET_LINK_LIST = "get_link_list";
-    private static final String METHOD_GET_LINK_LIST_TIME = "get_link_list_time_bound";
+    private static final String METHOD_GET_LINK_LIST_TIME = "cfunc";
     private static final String METHOD_COUNT_LINKS = "count_links";
     private static final String METHOD_ADD_COUNTS = "add_counts";
     private static final String METHOD_ADD_BULK_NODES = "add_bulk_nodes";
@@ -186,7 +189,8 @@ private static class Converter {
     public static List NodeToList(Node n) {
         List list = new ArrayList();
 
-        //no need in id here
+        //add 0 as id here to increment it on server side
+        list.add(0);
         list.add(n.type);
         list.add(n.version);
         list.add(n.time);
@@ -209,7 +213,7 @@ private static class Converter {
 
     public static Link ListToLink(List l) {
         return new Link(((Number)l.get(0)).longValue(), ((Number)l.get(2)).longValue(), ((Number)l.get(1)).longValue(),
-                (byte)((Boolean) l.get(3) ? 1 : 0),
+                (byte)((Boolean) l.get(3)? 1 : 0),
                 ((String)l.get(4)).getBytes(), ((Number)l.get(6)).intValue(), ((Number)l.get(5)).longValue());
     }
 
@@ -255,8 +259,8 @@ private static class Converter {
     }
 
     private void addBulkLinksImpl(List<Link> links) throws Exception{
-        if (Level.TRACE.isGreaterOrEqual(debuglevel)) {
-            logger.trace("addBulkLinks: " + links.size() + " links");
+        if (Level.DEBUG.isGreaterOrEqual(debuglevel)) {
+            logger.debug("addBulkLinks: " + links.size() + " links");
         }
         List objects = new ArrayList(links.size());
         for (Link link: links){
@@ -391,7 +395,6 @@ private static class Converter {
 
         if (((List)res.get(0)).isEmpty() || ((List)res.get(0)).get(0) == null)
             return null;
-
 //        if (res.isEmpty())
 //            return null;
         List<Link> links = new ArrayList<>();
@@ -409,7 +412,7 @@ private static class Converter {
         try {
             return getLinkListImpl(id1, link_type, minTimestamp, maxTimestamp, offset, limit);
         } catch (Exception ex) {
-            logger.error("getLinkList time failed! " + ex);
+            logger.error("getLinkListrTime failed! " + ex);
             throw ex;
         }
     }
@@ -428,7 +431,7 @@ private static class Converter {
         List res = syncOps.call(METHOD_GET_LINK_LIST_TIME, id1, link_type,
                 minTimestamp, maxTimestamp, offset, limit);
 
-        if (((List)res.get(0)).isEmpty()){
+        if (res.isEmpty() || ((List)res.get(0)).isEmpty()){
             return null;
         }
 
@@ -493,7 +496,7 @@ private static class Converter {
         l.add(node);
         long ids[] = bulkAddNodes(dbid, l);
         assert(ids.length == 1);
-        return ids[0];
+        return node.id;
     }
 
     @Override
