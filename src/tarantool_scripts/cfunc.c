@@ -6,7 +6,6 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-#define MP_SOURCE 1
 #include "msgpuck.h"
 
 const uint32_t SPACE_ID = 513;

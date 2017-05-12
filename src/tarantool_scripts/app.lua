@@ -1,11 +1,14 @@
---call tarantool app.lua
---#!/home/tarantool/src/tarantool
+#!/usr/bin/tarantool
 
---#!/usr/bin/tarantool
-os.execute('rm -rf 51* 0* tarantool.log')
+-- Clean old data
+os.execute('rm -rf 51* 0* *.xlog *.snap *.vylog')
 
-box.cfg{listen=3301, log_level=4, log='tarantool.log', vinyl_cache = 2*1024*1024*1024}
-
+box.cfg{
+    listen=3301,
+    log_level=4,
+    log='tarantool.log',
+    vinyl_cache = 2*1024*1024*1024
+}
 
 local engine='vinyl'
 local type_idx = 'tree'
@@ -236,7 +239,7 @@ function delete_node(id, type_)
     local res = true
     if (not node or node[2] ~= type_) then
         res = false
-    else 
+    else
         nodes:delete{id}
     end
 
@@ -256,4 +259,4 @@ function print_table(t)
     end
 end
 
---console.start()
+console.start()

@@ -11,3 +11,6 @@ out
 *xlog
 *snap
 *range
+*~
+*.so
+.gdb_history

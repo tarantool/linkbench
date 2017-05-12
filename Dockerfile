@@ -31,13 +31,6 @@ RUN apk add --update wget && \
   apk del wget && \
   rm /tmp/* /var/cache/apk/*
 
-RUN git clone https://github.com/tarantool/tarantool -b 1.7 && \
-	cd tarantool && \
-	git submodule init && \
-	git submodule update --recursive && \
-	cmake . && \
-	make
-
 RUN git clone https://github.com/IlyaMarkovMipt/linkbench &&\
 	cd linkbench && \
 	mvn package -Dmaven.test.skip=true
@@ -45,8 +38,7 @@ RUN git clone https://github.com/IlyaMarkovMipt/linkbench &&\
 RUN cd linkbench && \
 	mvn package -Dmaven.test.skip=true
 
-RUN cd linkbench/src/tarantool_scripts && \
-	gcc -shared cfunc.c -o cfunc.so -I ../../../tarantool/src -I /../../../tarantool/third_party/luajit/src/ -fPIC
+RUN cd linkbench/src/tarantool_scripts && make
 
 VOLUME ["/log"]
 
