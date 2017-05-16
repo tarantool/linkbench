@@ -100,6 +100,10 @@ or Mac OS X.
 **MySQL Server**: To benchmark MySQL you will need a running MySQL
     server with free disk space.
 
+**Tarantool Server**: To benchmark Tarantool you need installed Tarantool
+1.7.4 or later. It is available from https://tarantool.org/download.html .
+Please install `tarantool`, `tarantool-dev` and `libmsgpuck-dev` packages.
+
 Getting and Building LinkBench
 ----------------------------
 First get the source code
@@ -160,6 +164,106 @@ If the build is successful, you should get a message like this at the end of the
 
     BUILD SUCCESSFUL
     Total time: 3 seconds
+
+Running a Benchmark with Tarantool
+==================================
+
+In this section we will document the process of launching
+a new Tarantool database and running a benchmark with LinkBench.
+
+#### Tarantool Launch
+
+Compile C module for Tarantool:
+
+    cd src/tarantool
+    make
+
+We need to launch Tarantool server. All setup is written in directory
+src/tarantool, so move to the directory and launch server:
+
+    # assuming, you are in linkbench directory
+    cd src/tarantool
+    tarantool app.lua &
+
+This will launch tarantool server as daemon. You can change setup in app.lua
+file. As default it launches Tarantool with engine 'vinyl' and logs to
+tarantol.log.
+
+#### Configuration Files
+
+LinkBench requires several configuration files that specify the
+benchmark setup, the parameters of the graph to be generated, etc.
+Open config/LinkConfigTarantool.properties.  At a minimum you will need to
+fill in the settings under *Tarantool Connection Information* to match
+the server, user and database you set up earlier. e.g.
+
+    # Tarantool connection information
+    host = localhost
+    user = linkbench
+    password = linkbench
+    port = 3306
+    dbid = linkdb
+
+You can read through the settings in this file.  There are a lot of settings
+that control the benchmark itself, and the output of the LinkBench
+command link tool.  Notice that LinkConfigTarantool.properties
+references another file in this line:
+
+    workload_file = config/FBWorkload.properties
+
+This workload file defines how the social
+graph should be generated and what mix of operations should make
+up the benchmark.  The included workload file has been tuned to
+match our production workload in query mix.  If you want to change
+the scale of the benchmark (the default graph is quite small for
+benchmarking purposes), you should look at the maxid1 setting.  This
+controls the number of nodes in the initial graph created in the load
+phase: increase it to get a larger database.
+
+      # start node id (inclusive)
+      startid1 = 1
+
+      # end node id for initial load (exclusive)
+      # With default config and MySQL/InnoDB, 1M ids ~= 1GB
+      maxid1 = 10000001
+
+####Loading Data
+
+First we need to do an initial load of data using our new config file:
+
+    ./bin/linkbench -c config/LinkConfigTarantool.properties -l
+
+This will take a while to load, and you should get frequent progress updates.
+Once loading is finished you should see a notification like:
+
+    LOAD PHASE COMPLETED.  Loaded 10000000 nodes (Expected 10000000).
+      Loaded 47423071 links (4.74 links per node).  Took 620.4 seconds.
+      Links/second = 76435
+
+At the end LinkBench reports a range of statistics on load time that are
+of limited interest at this stage.
+
+#### Request Phase
+
+Now you can do some benchmarking.
+Run the request phase using the below command:
+
+    ./bin/linkbench -c config/LinkConfigTarantool.properties -r
+
+LinkBench will log progress to the console, along with statistics.
+Once all requests have been sent, or the time limit has elapsed, LinkBench
+will notify you of completion:
+
+    REQUEST PHASE COMPLETED. 25000000 requests done in 2266 seconds.
+      Requests/second = 11029
+
+You can also inspect the latency statistics. For example, the following line tells us the mean latency
+for link range scan operations, along with latency ranges for median (p50), 99th percentile (p99) and
+so on.
+
+    GET_LINKS_LIST count = 12678653  p25 = [0.7,0.8]ms  p50 = [1,2]ms
+                   p75 = [1,2]ms  p95 = [10,11]ms  p99 = [15,16]ms
+                   max = 2064.476ms  mean = 2.427ms
 
 Running a Benchmark with MySQL
 ==============================

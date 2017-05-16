@@ -8,4 +8,9 @@ out
 *.iml
 .idea
 .DS_Store
-
+*xlog
+*snap
+*range
+*~
+*.so
+.gdb_history

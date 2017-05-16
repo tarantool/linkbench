@@ -79,7 +79,11 @@
           <artifactId>postgresql</artifactId>
           <version>9.4.1211</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.tarantool</groupId>
+            <artifactId>connector</artifactId>
+            <version>1.7.0</version>
+        </dependency>
     </dependencies>
 
     <profiles>
