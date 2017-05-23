@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if test ! -d /var/lib/mysql/mysql; then
+    mysql_install_db
+    /usr/local/bin/mysqld --bootstrap < /etc/mysql/linkbench.sql
+    cp -p /etc/mysql/my.cnf /var/lib/mysql/
+fi
+
+#ln -s /dev/stderr /tmp/mysqld.err
+exec /usr/local/bin/mysqld \
+    --defaults-file=/var/lib/mysql/my.cnf \
+    --skip-grant-tables \
+    --user=root
