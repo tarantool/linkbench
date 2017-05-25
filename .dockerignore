@@ -1,0 +1,5 @@
+.git/
+src/mysql/
+src/tarantool/
+target/
+*~

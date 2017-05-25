@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -34,6 +34,7 @@
 
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
+linkbench_dir=`cd "$bin"; cd ..; pwd`
 
 # Export LINKBENCH_HOME so that LinkBench Java code can access env var
 export LINKBENCH_HOME=`dirname $bin`
@@ -67,7 +68,7 @@ CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 IFS=
 
 # add latest jar to CLASSPATH
-CLASSPATH=${CLASSPATH}:target/FacebookLinkBench.jar;
+CLASSPATH=${CLASSPATH}:$linkbench_dir/target/FacebookLinkBench.jar;
 
 # restore ordinary behaviour
 unset IFS
