@@ -2,4 +2,7 @@
 src/mysql/
 src/tarantool/
 target/
+data/
 *~
+Dockerfile
+.docker-compose.yml

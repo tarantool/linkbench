@@ -1,0 +1,28 @@
+version: '2.1'
+services:
+  mysql:
+    build: src/mysql
+    image: linkbench-mysql
+    volumes:
+     - ./data:/var/lib/mysql
+    cpuset: 10,22,11,23
+    mem_limit: 4G
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+  linkbench:
+    build: .
+    image: linkbench
+    depends_on:
+     - mysql
+    cpuset: 0-9
+    command: |
+        /bin/sh -c '/bin/sh -s <<EOF
+            sed "s/maxid1 = .*/maxid1 = 10000001/" -i config/FBWorkload.properties
+            sed "s/host = .*/host = mysql/" -i config/LinkConfigMysql.properties
+            wait-for mysql:3306 -- echo "MySQL is up"
+            linkbench -c config/LinkConfigMysql.properties -l
+            linkbench -c config/LinkConfigMysql.properties -r
+        EOF'
