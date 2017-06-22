@@ -4,7 +4,7 @@ CFLAGS ?= -O3 -march=native
 
 linkbench.so: linkbench.c
 	gcc -shared $< -o $@ \
-		-I/usr/include/tarantool \
+		-I/usr/include/tarantool -I/usr/local/include/tarantool \
 		-lmsgpuck \
 		$(CFLAGS) \
 		-fPIC

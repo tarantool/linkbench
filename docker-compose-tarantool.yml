@@ -1,0 +1,25 @@
+version: '2.1'
+services:
+  tarantool:
+    build: src/tarantool
+    image: linkbench-tarantool
+    volumes:
+     - ./data:/var/lib/tarantool
+    cpuset: 10,22,11,23
+    mem_limit: 4G
+  linkbench:
+    build: .
+    image: linkbench
+    depends_on:
+     - tarantool
+    cpuset: 0-9
+    command: |
+        /bin/sh -c '/bin/sh -s <<EOF
+            sed "s/maxid1 = .*/maxid1 = 10000001/" -i config/FBWorkload.properties
+            sed "s/host = .*/host = tarantool/" -i config/LinkConfigTarantool.properties
+            sed "s/user = .*/user = linkbench/" -i config/LinkConfigTarantool.properties
+            sed "s/password = .*/password = linkbench/" -i config/LinkConfigTarantool.properties
+            wait-for tarantool:3301 -- echo "Tarantool is up"
+            linkbench -c config/LinkConfigTarantool.properties -l
+            linkbench -c config/LinkConfigTarantool.properties -r
+        EOF'

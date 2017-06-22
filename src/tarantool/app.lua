@@ -1,15 +1,16 @@
-#!/usr/bin/tarantool
+#!/usr/bin/env tarantool
 
--- Clean old data
--- os.execute('rm -rf 51* 0* *.xlog *.snap *.vylog')
+local path = require('fio').dirname(arg[0])
+package.path = path.."/?.lua;"..package.path
+package.cpath = path.."/?.so;"..package.cpath
+
+require('console').listen('unix/:./tarantool.sock')
+require('gperftools').cpu.start('tarantool.prof')
 
 box.cfg{
-    listen=3301,
-    log_level=4,
-    log='tarantool.log',
-    vinyl_cache = 2*1024*1024*1024
+    listen = 3301;
+    vinyl_memory =     512 * 1024 * 1024;
+    vinyl_cache = 2 * 1024 * 1024 * 1024;
 }
 
 require('linkbench')
-
-require('console').start()
