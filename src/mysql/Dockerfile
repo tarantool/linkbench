@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
         libreadline6-dev \
         libncurses5-dev \
         libssl-dev \
+        libboost-all-dev \
         liblz4-dev && \
     rm -rf /var/lib/apt/lists/*
 

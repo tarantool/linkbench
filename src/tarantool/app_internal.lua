@@ -31,8 +31,8 @@ local function schema()
         {name='id1',type='unsigned'},
         {name='id2',type='unsigned'},
         {name='link_type',type='unsigned'},
-        {name='visibility',type='boolean'},
-        {name='data', type = 'string'},
+        {name='visibility',type='scalar'},
+        {name='data', type = 'scalar'},
         {name='time', type = 'unsigned'},
         {name='version', type = 'unsigned'}
     }
@@ -48,7 +48,7 @@ local function schema()
         {name='type', type='unsigned'},
         {name='version', type='unsigned'},
         {name='time', type='unsigned'},
-        {name='data', type='string'}
+        {name='data', type='scalar'}
     }
 
     --
