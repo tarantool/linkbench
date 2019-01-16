@@ -580,8 +580,8 @@ private static class Converter {
 
     private boolean updateNodeImpl(Node node) throws Exception {
         List nodeAsList = new ArrayList();
-        nodeAsList.add(node.id);
         nodeAsList.addAll(Converter.NodeToList(node));
+        nodeAsList.set(0, node.id); // change first field to current id
         List res = syncOps.call(METHOD_UPDATE_NODE, nodeAsList);
         return (Boolean)((List) res.get(0)).get(0);
     }
