@@ -15,3 +15,6 @@ out
 *~
 *.so
 .gdb_history
+
+# Vim Swap files
+*.sw[a-z]
