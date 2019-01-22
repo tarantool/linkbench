@@ -5,7 +5,7 @@ package.path = path.."/?.lua;"..package.path
 package.cpath = path.."/?.so;"..package.cpath
 
 require('console').listen('unix/:./tarantool.sock')
-require('gperftools').cpu.start('tarantool.prof')
+--require('gperftools').cpu.start('tarantool.prof')
 
 box.cfg{
     listen = 3301;
