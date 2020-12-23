@@ -94,6 +94,7 @@ local function schema()
     box.schema.user.grant('linkbench', 'read,write', 'space', 'links')
     box.schema.user.grant('linkbench', 'read,write', 'space', 'nodes')
     box.schema.user.grant('linkbench', 'read,write', 'space', 'counts')
+    box.schema.user.grant('guest', 'read,write,execute', 'universe')
 end
 
 box.once("linkbench:0.1", schema)
