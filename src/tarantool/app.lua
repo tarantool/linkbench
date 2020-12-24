@@ -31,13 +31,13 @@ local path = require('fio').dirname(arg[0])
 package.path = path.."/?.lua;"..package.path
 package.cpath = path.."/?.so;"..package.cpath
 
-require('console').listen('unix/:./tarantool.sock')
-require('gperftools').cpu.start('tarantool.prof')
-
 box.cfg{
     listen       = get_env('TT_LISTEN',       'number', 3301),
     vinyl_memory = get_env('TT_VINYL_MEMORY', 'number', 512 * 1024^2),
     vinyl_cache  = get_env('TT_VINYL_CACHE',  'number', 2 * 1024^3),
+    pid_file     = "./tarantool-server.pid",
+    log          = "./tarantool-server.log",
+    background   = true,
 }
 
 require('app_internal')
